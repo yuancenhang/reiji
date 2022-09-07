@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: utf-8
+      force: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/reiji
+    username: root
+    password: ws609948437
+
+  #qq发邮件的配置
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 910546031@qq.com
+    password: kxhudbsyhbhkbdgc
+    default-encoding: utf-8
+    from:
+      910546031@qq.com
+    properties:
+      mail:
+        smtp:
+          socketFactoryClass:javax.net.ssl.SSLSocketFactory
+
+  redis:
+    host: localhost
+    port: 6379
+
+mybatis-plus:
+  configuration:
+    #数据库的字段是否去掉下划线并按驼峰命名映射实体类
+    map-underscore-to-camel-case: true
+    #选择一个打印mybatis日志的类
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    banner: false
+    #mapper文件的路径
+  mapper-locations: classpath*:static/mapper/*.xml
+  #实体类别名简称
+  type-aliases-package: com.hang.reiji.domain
+
+#自定义的上传来的图片资源的保存位置
+filePath:
+  picture:
+    D://reiji/picture/

@@ -1,0 +1,48 @@
+
+mybatisPlus分页功能的使用：
+
+1，在配置类创建一个分页的拦截器扔进spring容器
+
+    /**
+     * 配置类
+     */
+    @Configuration
+    public class AppConfig implements WebMvcConfigurer {
+
+        /**
+         * 创建一个mybatisPlus的的拦截器扔进spring容器
+         */
+        @Bean
+        public MybatisPlusInterceptor mybatisPlusInterceptor(){
+            //创建一个mybatisPlus的的拦截器,这个拦截器相当于是一个容器，能装东西,本质是一个List
+            MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+            //往拦截器里装一个分页拦截器
+            interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+            return interceptor;
+        }
+    }
+
+2，在其他地方调用方法测试
+
+    @Autowired
+    EmployeeMapper employeeMapper;
+
+    @Test
+    void t1(){
+        IPage<Employee> iPage = new Page<>(1,10);
+        iPage = employeeMapper.selectPage(iPage,null);
+        System.out.println("当前页码：" + iPage.getCurrent());
+        System.out.println("每页多少条：" + iPage.getSize());
+        System.out.println("一共多少条：" + iPage.getTotal());
+        System.out.println("一共多少页：" + iPage.getPages());
+        System.out.println("数据：" + iPage.getRecords());
+    }
+
+3,application.yml中关于mybatisPlus的设置
+
+    mybatis-plus:
+      configuration:
+        #数据库的字段是否去掉下划线并按驼峰命名映射实体类
+        map-underscore-to-camel-case: true
+        #选择一个打印mybatis日志的类
+        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
