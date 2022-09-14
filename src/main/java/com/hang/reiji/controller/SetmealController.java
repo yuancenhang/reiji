@@ -9,6 +9,8 @@ import com.hang.reiji.domain.Setmeal;
 import com.hang.reiji.dto.SetmealDto;
 import com.hang.reiji.service.SetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ public class SetmealController {
     /**
      * 保存套餐
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         boolean ok = setmealService.MySave(setmealDto);
@@ -52,6 +55,7 @@ public class SetmealController {
     /**
      * 批量起售和停售
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PostMapping("/status/{flag}")
     public R<String> changeStatus(String[] ids, @PathVariable Integer flag) {
         boolean ok = setmealService.changeStatus(ids, flag);
@@ -61,6 +65,7 @@ public class SetmealController {
     /**
      * 批量删除
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @DeleteMapping
     public R<String> delete(Long[] ids) {
         boolean ok = setmealService.delete(ids);
@@ -69,8 +74,8 @@ public class SetmealController {
 
     /**
      * 根据categoryID获取Setmeal列表
-     * @return
      */
+    @Cacheable(value = "setmealCache",key = "#categoryId + '_' + #name")
     @GetMapping("/list")
     public R<List<Setmeal>> getList(Long categoryId, String name) {
         LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();

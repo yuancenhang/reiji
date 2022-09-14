@@ -92,9 +92,10 @@ public class UtilOne {
     /**
      * 设置redis的序列化方式
      */
-    public static ValueOperations getValue(RedisTemplate template,Class c){
+    public static ValueOperations<Object,Object> getValue(RedisTemplate<Object,Object> template,Class c){
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<Object>(c));
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(c));
         return template.opsForValue();
     }
 }

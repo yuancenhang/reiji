@@ -25,6 +25,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+        <!--redis的缓存框架，有了这个后，就可以使用注解的方式简化缓存开发-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
         <!--spring-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,16 +1,17 @@
 package com.hang.reiji.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.hang.reiji.domain.R;
 import com.hang.reiji.domain.User;
 import com.hang.reiji.service.UserService;
 import com.hang.reiji.utils.UtilOne;
-import com.sun.prism.impl.BaseContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -19,6 +20,9 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    RedisTemplate<Object,Object> redisTemplate;
+
     /**
      * 获取验证码
      * @return 验证码
@@ -26,7 +30,8 @@ public class UserController {
     @GetMapping("/getCode")
     public R<String> getCode(String phone, HttpSession session){
         String code = UtilOne.getCode(4);
-        session.setAttribute(phone,code);
+        ValueOperations<Object,Object> valueOperations = UtilOne.getValue(redisTemplate,String.class);
+        valueOperations.set(phone,code,5L, TimeUnit.MINUTES); //放在redis缓存，5分钟有效
         return R.success(code);
     }
 
@@ -39,16 +44,22 @@ public class UserController {
     public R<User> login(@RequestBody Map<String,String> map,HttpSession session){
         String code = map.get("code");
         String phone = map.get("phone");
-        String code1 = (String) session.getAttribute(phone);
-        System.out.println("传来的验证码是：" + code);
-        System.out.println("session的验证码是：" + code1);
-        if (code.equals(code1)){
-            User user = userService.mySave(phone);
-            session.removeAttribute(phone);
-            session.setAttribute("user",user.getId());
-            return R.success(user);
+        ValueOperations<Object,Object> valueOperations = UtilOne.getValue(redisTemplate,String.class);
+        String code1 = (String) valueOperations.get(phone);
+        if (code1 != null){
+            System.out.println("传来的验证码是：" + code);
+            System.out.println("redis保存的验证码是：" + code1);
+            if (code.equals(code1)){
+                User user = userService.mySave(phone);
+                session.removeAttribute(phone);
+                session.setAttribute("user",user.getId());
+                redisTemplate.delete(phone);
+                return R.success(user);
+            }else {
+                return R.error("验证码不正确！");
+            }
         }else {
-            return R.error("验证码不正确！");
+            return R.error("验证码已过期！");
         }
     }
 
