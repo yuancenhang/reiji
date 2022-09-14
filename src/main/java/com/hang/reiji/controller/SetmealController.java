@@ -44,6 +44,16 @@ public class SetmealController {
     }
 
     /**
+     * 更新套餐
+     */
+    @CacheEvict(value = "setmealCache",allEntries = true)
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDto setmealDto){
+        boolean ok = setmealService.myUpdate(setmealDto);
+        return ok ? R.success("套餐修改成功") : R.error("套餐修改失败");
+    }
+
+    /**
      * 修改套餐，获取某个套餐和套餐下关联的菜品
      */
     @GetMapping("/{setmealId}")
@@ -80,6 +90,7 @@ public class SetmealController {
     public R<List<Setmeal>> getList(Long categoryId, String name) {
         LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(categoryId != null, Setmeal::getCategoryId, categoryId);
+        wrapper.eq(Setmeal::getStatus,1);
         wrapper.like(name != null, Setmeal::getName, name);
         List<Setmeal> list = setmealService.list(wrapper);
         return list == null ? R.error("没有找到分类") : R.success(list);

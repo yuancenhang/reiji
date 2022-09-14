@@ -15,4 +15,6 @@ public interface SetmealService extends IService<Setmeal> {
     boolean changeStatus(String[] ids, Integer flag);
 
     boolean delete(Long[] ids);
+
+    boolean myUpdate(SetmealDto setmealDto);
 }

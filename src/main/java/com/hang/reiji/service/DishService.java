@@ -17,4 +17,6 @@ public interface DishService extends IService<Dish> {
     IPage<DishDto> getMyList(String name, int page, int pageSize);
 
     List<DishDto> getDishDto(Long categoryId, String name);
+
+    boolean myUpdate(DishDto dishDto);
 }

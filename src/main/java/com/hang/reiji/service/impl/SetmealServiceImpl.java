@@ -162,4 +162,25 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         }
         return ok;
     }
+
+    /**
+     * 更新套餐
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public boolean myUpdate(SetmealDto setmealDto) {
+        //更新setmeal
+        boolean ok = setmealMapper.updateById(setmealDto) == 1;
+        //更新setmealDishes
+        //删除原有的套餐菜品
+        LambdaQueryWrapper<SetmealDish> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SetmealDish::getSetmealId,setmealDto.getId());
+        setmealDishMapper.delete(wrapper);
+        //保存新的菜品
+        List<SetmealDish> list = setmealDto.getSetmealDishes();
+        for (SetmealDish setmealDish : list){
+            if (setmealDishMapper.insert(setmealDish) != 1) ok = false;
+        }
+        return ok;
+    }
 }

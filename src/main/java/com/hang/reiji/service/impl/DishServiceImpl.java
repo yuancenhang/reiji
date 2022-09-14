@@ -153,6 +153,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     public List<DishDto> getDishDto(Long categoryId, String name) {
         //查Dish
         LambdaQueryWrapper<Dish> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Dish::getStatus,1);
         wrapper.eq(categoryId != null,Dish::getCategoryId,categoryId);
         wrapper.like(name != null,Dish::getName,name);
         List<Dish> list = dishMapper.selectList(wrapper);
@@ -172,6 +173,28 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             newList.add(dto);
         }
         return newList;
+    }
+
+    /**
+     * 修改菜品
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public boolean myUpdate(DishDto dishDto) {
+        //先把Dish更新
+        boolean ok = true;
+        if(dishMapper.updateById(dishDto) != 1) ok = false;
+        //再把DishFlavor更新
+        //删除原有的口味
+        LambdaQueryWrapper<DishFlavor> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DishFlavor::getDishId,dishDto.getId());
+        dishFlavorMapper.delete(wrapper);
+        //把新口味保存
+        List<DishFlavor> list = dishDto.getFlavors();
+        for (DishFlavor dishFlavor : list){
+            if (dishFlavorMapper.insert(dishFlavor) != 1) ok = false;
+        }
+        return ok;
     }
 }
 

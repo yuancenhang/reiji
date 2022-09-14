@@ -6,9 +6,7 @@ import com.hang.reiji.dto.DishDto;
 import com.hang.reiji.service.CategoryService;
 import com.hang.reiji.service.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,9 +53,18 @@ public class DishController {
     @CacheEvict(value = "dishCache",allEntries = true) //清除dishCache分类下的全部缓存
     @PostMapping
     public R<String> save(@RequestBody DishDto dishDto) {
-        System.out.println("............................" + dishDto.getName());
         boolean ok = dishService.Mysave(dishDto);
         return ok ? R.success("保存成功") : R.error("保存菜品失败！！！");
+    }
+
+    /**
+     * 更新菜品
+     */
+    @CacheEvict(value = "dishCache",allEntries = true)
+    @PutMapping
+    public R<String> update(@RequestBody DishDto dishDto){
+        boolean ok = dishService.myUpdate(dishDto);
+        return ok ? R.success("菜品修改成功") : R.error("菜品修改失败");
     }
 
     /**
